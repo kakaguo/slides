@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Slides</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+</head>
+<body>
+    <div class="arts">
+        <div class="pics" style="width:200px; height: 150px; background-color: red"></div>
+        <div class="pics" style="width:200px; height: 150px; background-color: blue"></div>
+        <div class="pics" style="width:200px; height: 150px; background-color: yellow"></div>
+        <div class="pics" style="width:200px; height: 150px; background-color: green"></div>
+        <div class="pics" style="width:200px; height: 150px; background-color: pink"></div>
+    </div>
+</body>
+<script>
+  $('button').on('click', function () {
+    $viewpoint = $('.viewpoint').eq(0);
+    var left = $viewpoint.css('left')
+    left = parseInt(left)
+    console.log(left)
+    $viewpoint.animate({left: left - 200})
+  })
+
+  $.fn.slides = function (options) {
+    var height = options.height
+    var width = options.width
+    var $arts = this.eq(0)
+    var $pics = $arts.children()
+      .wrapAll('<div class="list"></div>')
+      .css({float: 'left'})
+    /* list宽度为图片并排宽度，通过改变其left值改变显示的图片 */
+    $list = $arts.children().wrapAll('<div class="viewpoint"></div>')
+    $list.css({
+      width: $pics.length * width,
+      position: 'relative',
+      left: 0
+    })
+    /* 为list提供容器 */
+    var $viewpoint = $list.parent()
+    $viewpoint.css({
+      width: width,
+      height: height,
+      overflow: 'hidden'
+    })
+
+    var $next = $('<button>next</button>').appendTo($arts)
+    $next.on('click', function () {
+      $list.animate({
+      	left: '-=' + width
+      })
+    })
+
+    var $prev = $('<button>prev</button>').appendTo($arts)
+    $prev.on('click', function () {
+      $list.animate({
+      	left: '+=' + width
+      })
+    })
+
+  }
+
+
+    $('.arts').slides({
+      height: 150,
+      width: 200
+    })
+
+</script>
+</html>
