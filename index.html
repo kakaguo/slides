@@ -30,6 +30,7 @@
     var $pics = $arts.children()
       .wrapAll('<div class="list"></div>')
       .css({float: 'left'})
+
     /* list宽度为图片并排宽度，通过改变其left值改变显示的图片 */
     $list = $arts.children().wrapAll('<div class="viewpoint"></div>')
     $list.css({
@@ -37,6 +38,7 @@
       position: 'relative',
       left: 0
     })
+
     /* 为list提供容器 */
     var $viewpoint = $list.parent()
     $viewpoint.css({
@@ -45,7 +47,7 @@
       overflow: 'hidden'
     })
 
-  /* 通过当前图片的index来计算animate的位置*/
+    /* 通过当前图片的index来计算animate的位置*/
     var current = 0
     var hover = false
     var $next = $('<button>next</button>').appendTo($arts)
@@ -75,6 +77,7 @@
     $prev.on('click', function () {
     	go(current - 1)
     })
+
    /*通过计时器和mouseenter事件，增加自动播放和自动悬停功能*/
     var timer
     var autoplay = function () {
@@ -95,10 +98,10 @@
 
   }
 
-    $('.arts').slides({
-      height: 150,
-      width: 200,
-      auto: true
-    })
+  $('.arts').slides({
+    height: 150,
+    width: 200,
+    auto: true
+  })
 </script>
 </html>
