@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Slides</title>
-    <link rel="stylesheet" href="style.css">
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 </head>
 <body>
@@ -46,18 +45,32 @@
       overflow: 'hidden'
     })
 
+  /* 通过当前图片的index来计算animate的位置*/
+    var current = 0
     var $next = $('<button>next</button>').appendTo($arts)
+	  var next = function () {
+    	var left = (current + 1) * (-200)
+        $list.animate({
+          left: left
+        }, function () {
+          current++
+        })
+	  }
     $next.on('click', function () {
-      $list.animate({
-      	left: '-=' + width
-      })
+    	next()
     })
 
     var $prev = $('<button>prev</button>').appendTo($arts)
-    $prev.on('click', function () {
+    var prev = function () {
+      var left = (current - 1) * (-200)
       $list.animate({
-      	left: '+=' + width
+      	left: left
+      },function () {
+        current--
       })
+    }
+    $prev.on('click', function () {
+    	prev()
     })
 
   }
