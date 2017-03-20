@@ -47,14 +47,26 @@
 
   /* 通过当前图片的index来计算animate的位置*/
     var current = 0
+    var hover = false
     var $next = $('<button>next</button>').appendTo($arts)
     var $prev = $('<button>prev</button>').appendTo($arts)
     var go = function (index) {
+    	console.log(index)
+      if(index < 0) {
+      	index = $pics.length - 1
+      }
+      if(index > $pics.length - 1) {
+      	index = 0
+      }
+      if(timer){window.clearInterval(timer)}
       var left = index * (-200)
-      $list.animate({
+      $list.stop(true, true).animate({
       left: left
       }, function () {
         current = index
+        if(!hover) {
+          autoplay()
+        }
       })
     }
     $next.on('click', function () {
@@ -63,14 +75,30 @@
     $prev.on('click', function () {
     	go(current - 1)
     })
+   /*通过计时器和mouseenter事件，增加自动播放和自动悬停功能*/
+    var timer
+    var autoplay = function () {
+      timer = setInterval(function () {
+          go(current + 1)
+      }, 3000)
+	  }
+    if(options.auto){
+      autoplay()
+    }
+    $pics.on('mouseenter', function () {
+      window.clearInterval(timer)
+      hover = true
+    }).on('mouseleave', function () {
+      autoplay()
+      hover = false
+    })
 
   }
 
-
     $('.arts').slides({
       height: 150,
-      width: 200
+      width: 200,
+      auto: true
     })
-
 </script>
 </html>
