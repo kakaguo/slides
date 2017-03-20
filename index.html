@@ -48,29 +48,20 @@
   /* 通过当前图片的index来计算animate的位置*/
     var current = 0
     var $next = $('<button>next</button>').appendTo($arts)
-	  var next = function () {
-    	var left = (current + 1) * (-200)
-        $list.animate({
-          left: left
-        }, function () {
-          current++
-        })
-	  }
-    $next.on('click', function () {
-    	next()
-    })
-
     var $prev = $('<button>prev</button>').appendTo($arts)
-    var prev = function () {
-      var left = (current - 1) * (-200)
+    var go = function (index) {
+      var left = index * (-200)
       $list.animate({
-      	left: left
-      },function () {
-        current--
+      left: left
+      }, function () {
+        current = index
       })
     }
+    $next.on('click', function () {
+    	go(current + 1)
+    })
     $prev.on('click', function () {
-    	prev()
+    	go(current - 1)
     })
 
   }
