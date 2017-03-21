@@ -26,6 +26,7 @@
 		this.$element = $element
 		this.options = options
 		this.timer
+        this.current = 0
 		this.init()//init在这里执行
 		//console.log(1)
 	}
@@ -71,7 +72,6 @@
 	//监听事件注意作用域var self =this
 	Slides.prototype.bindEvent = function () {
 		var $art = this.$element
-		var current = this.current = 0
 		var $bullet = this.$bullet
 		var self = this
 		this.$next.on('click', function () {
