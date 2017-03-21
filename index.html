@@ -6,7 +6,14 @@
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 </head>
 <body>
-<div class="arts">
+<div class="art">
+    <div class="pics" style="width:200px; height: 150px; background-color: red"></div>
+    <div class="pics" style="width:200px; height: 150px; background-color: blue"></div>
+    <div class="pics" style="width:200px; height: 150px; background-color: yellow"></div>
+    <div class="pics" style="width:200px; height: 150px; background-color: green"></div>
+    <div class="pics" style="width:200px; height: 150px; background-color: pink"></div>
+</div>
+<div class="art">
     <div class="pics" style="width:200px; height: 150px; background-color: red"></div>
     <div class="pics" style="width:200px; height: 150px; background-color: blue"></div>
     <div class="pics" style="width:200px; height: 150px; background-color: yellow"></div>
@@ -18,116 +25,144 @@
 	var Slides = function ($element, options) {
 		this.$element = $element
 		this.options = options
-		this.init()
+		this.timer
+		this.init()//init在这里执行
+		//console.log(1)
 	}
 	Slides.prototype.init = function () {
 		this.prepareHtml()
-		this.bindEvents()
-		this.timer = null
+		this.bindEvent()
+		//console.log(2)
+		if (this.options.auto === true) {
+			this.autoPlay()
+		}
+		if (this.options.stopAuto === true) {
+			this.stop()
+		}
 	}
-
-	Slides.prototype.bindEvents = function () {
-		console.log(this)
-      console.log('list',this.$list)
-			console.log(this.$prev)
-		var self = this
-		this.$prev.on('click', function () {
-			self.prev()
+	Slides.prototype.prepareHtml = function () {
+		var $art = this.$element
+		var $options = this.options
+		//console.dir($options)
+		var hover = this.hover = false
+		$photos = this.$photos = $art.children().wrapAll('<div class="list"></div>')// $art.children()的list作为了墙板
+      console.log('photos', this.$photos)
+		$photos.css({float: "left"})
+		$list = this.$list = $art.children().wrapAll('<div class="viewspiont"></div>')// $art.children()的viewspiont作为了窗口
+		$list.css({
+			width: ($photos.length) * ($options.width),
+			overflow: "hidden",
+			position: "absolute",
+			left: 0
 		})
+		var $viewspiont = $('.viewspiont')
+		$viewspiont.css({
+			width: $options.width,
+			height: $options.height,
+			overflow: "hidden",
+			position: "relative"
+		})
+		var $prev = this.$prev = $('<a class="prev arrow"><</a>').appendTo($art)
+		var $next = this.$next = $('<a class="next arrow">></a>').appendTo($art)
+		//按钮切换图片
+		var $bullet = this.$bullet = $('<a href="javascript:;" class="bullet active">1</a><a href="javascript:;" class="bullet">2</a><a href="javascript:;" class="bullet">3</a><a href="javascript:;" class="bullet">4</a><a href="javascript:;" class="bullet">5</a><a href="javascript:;" class="bullet">6</a>').appendTo($art)
+		$bullet.wrapAll('<div class="setbullet"></div>')
+	}
+	//监听事件注意作用域var self =this
+	Slides.prototype.bindEvent = function () {
+		var $art = this.$element
+		var current = this.current = 0
+		var $bullet = this.$bullet
+		var self = this
 		this.$next.on('click', function () {
 			self.next()
 		})
-	}
-	Slides.prototype.prev = function () {
-		this.go(this.current - 1)
+		this.$prev.on('click', function () {
+			//console.log(4)
+			self.prev()
+		})
+		//鼠标移出移入事件监听
+		$art.on('mouseenter', function () {
+			self.stop()
+			self.hover = true
+			self.$next.addClass('onhover').removeClass('unhover')
+			self.$prev.addClass('onhover').removeClass('unhover')
+		})
+		$art.on('mouseleave', function () {
+			self.autoPlay()
+			self.hover = false
+			self.$next.removeClass('onhover').addClass('unhover')
+			self.$prev.removeClass('onhover').addClass('unhover')
+		})
+		$bullet.on('click', function () {
+			//console.log(5)
+			var $this = $(this)
+			var idx = $this.index()
+			self.go(idx)
+		})
 	}
 	Slides.prototype.next = function () {
 		this.go(this.current + 1)
 	}
-	Slides.prototype.go = function (index) {
-		var $pics = this.$pics
+	Slides.prototype.prev = function () {
+		this.go(this.current - 1)
+	}
+	Slides.prototype.go = function (index) {//这里的index作为参数传进去
+		var $photos = this.$photos//看phototype.prepareHtml中事先定义好的this.$photos
+		var $list = this.$list//看phototype.prepareHtml中事先定义好的this.$list
 		var timer = this.timer
-		var $list = this.$list
-		if (index < 0) {
-			index = $pics.length - 1
-		}
-		if (index > $pics.length - 1) {
+		//console.log(this)
+		if (index > $photos.length - 1) {
 			index = 0
+			$list.css({left: 0})
 		}
-		if (timer) {
-			window.clearInterval(timer)
+		if (index < 0) {
+			index = $photos.length - 1
+		}
+		if (timer) {//鼠标移上去有计数器(即自动播放)的话，就先清除计时器
+			window.clearInterval(timer);
 		}
 		var self = this
-		var left = index * (-200)
+		var left = index * ('-200')
 		$list.stop(true, true).animate({
 			left: left
-		}, function () {
-			self.current = index
-			if (!self.hover) {
-				self.autoplay()
-			}
+		})
+		self.current = index
+		if (!this.hover) {
+			//console.log(6)
+			self.autoPlay()
+		}
+		this.showBullet()
+	}
+	Slides.prototype.autoPlay = function () {
+		var self = this
+		this.timer = setInterval(function () {
+			self.next()
+		}, 2000)
+	}
+	Slides.prototype.stop = function () {
+		clearInterval(this.timer)
+	}
+	Slides.prototype.showBullet = function () {
+		//按钮高亮
+		this.$bullet.eq(this.current).addClass('active').siblings('.active').removeClass('active')
+	}
+	//jq插件
+	$.fn.carousel = function (options) {
+		console.log(this)//这里的this是含两个art的jq对象
+		this.each(function () {
+			console.log($(this))//这里的this是遍历后的各自对象
+			var $element = $(this)
+			var slide = new Slides($element, options)
 		})
 	}
-	Slides.prototype.autoplay = function () {
-
-	}
-	Slides.prototype.prepareHtml = function () {
-		var $art = this.$element
-		var options = this.options
-			var width = options.width
-			var height = options.height
-			var $pics = this.$pics = $art.children()
-				.wrapAll('<div class="list"></div>')
-				.css({float: 'left'})
-
-        /* list宽度为图片并排宽度，通过改变其left值改变显示的图片 */
-			$list = this.$list = $art.children().wrapAll('<div class="viewpoint"></div>')
-			$list.css({
-				width: $pics.length * width,
-				position: 'relative',
-				left: 0
-			})
-
-        /* 为list提供容器 */
-			var $viewpoint = this.$viewpoint = $list.parent()
-			$viewpoint.css({
-				width: width,
-				height: height,
-				overflow: 'hidden'
-			})
-
-        /* 通过当前图片的index来计算animate的位置*/
-			var current = this.current = 0
-			var hover = this.hover = false
-			var $next = this.$next = $('<button>next</button>').appendTo($art)
-			var $prev = this.$prev = $('<button>prev</button>').appendTo($art)
-          this.$prev = $prev
-          this.$next = $next
-          console.log(1,this.$prev)
-	}
-
-
-	var slides = new Slides($('.arts'), {width: 200, auto: true})
-
-
-  /*通过计时器和mouseenter事件，增加自动播放和自动悬停功能*/
-//	var timer
-//	var autoplay = function () {
-//		timer = setInterval(function () {
-//			go(current + 1)
-//		}, 3000)
-//	}
-//	if (options.auto) {
-//		autoplay()
-//	}
-//	$pics.on('mouseenter', function () {
-//		window.clearInterval(timer)
-//		hover = true
-//	}).on('mouseleave', function () {
-//		autoplay()
-//		hover = false
-////	})
-//
-//	}
+	//调用者
+	$('.art').carousel({
+		width: 200,
+		height: 150,
+		auto: true
+      /*stopAuto:true*/
+	})
 </script>
+</body>
 </html>
