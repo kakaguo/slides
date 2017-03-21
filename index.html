@@ -15,18 +15,73 @@
 </div>
 </body>
 <script>
-	$.fn.slides = function (options) {
-		var $arts = this
-		$arts.each(function () {
-			var $art = $(this)
-			var height = options.height
+	var Slides = function ($element, options) {
+		this.$element = $element
+		this.options = options
+		this.init()
+	}
+	Slides.prototype.init = function () {
+		this.prepareHtml()
+		this.bindEvents()
+		this.timer = null
+	}
+
+	Slides.prototype.bindEvents = function () {
+		console.log(this)
+      console.log('list',this.$list)
+			console.log(this.$prev)
+		var self = this
+		this.$prev.on('click', function () {
+			self.prev()
+		})
+		this.$next.on('click', function () {
+			self.next()
+		})
+	}
+	Slides.prototype.prev = function () {
+		this.go(this.current - 1)
+	}
+	Slides.prototype.next = function () {
+		this.go(this.current + 1)
+	}
+	Slides.prototype.go = function (index) {
+		var $pics = this.$pics
+		var timer = this.timer
+		var $list = this.$list
+		if (index < 0) {
+			index = $pics.length - 1
+		}
+		if (index > $pics.length - 1) {
+			index = 0
+		}
+		if (timer) {
+			window.clearInterval(timer)
+		}
+		var self = this
+		var left = index * (-200)
+		$list.stop(true, true).animate({
+			left: left
+		}, function () {
+			self.current = index
+			if (!self.hover) {
+				self.autoplay()
+			}
+		})
+	}
+	Slides.prototype.autoplay = function () {
+
+	}
+	Slides.prototype.prepareHtml = function () {
+		var $art = this.$element
+		var options = this.options
 			var width = options.width
-			var $pics = $arts.children()
+			var height = options.height
+			var $pics = this.$pics = $art.children()
 				.wrapAll('<div class="list"></div>')
 				.css({float: 'left'})
 
         /* list宽度为图片并排宽度，通过改变其left值改变显示的图片 */
-			$list = $arts.children().wrapAll('<div class="viewpoint"></div>')
+			$list = this.$list = $art.children().wrapAll('<div class="viewpoint"></div>')
 			$list.css({
 				width: $pics.length * width,
 				position: 'relative',
@@ -34,7 +89,7 @@
 			})
 
         /* 为list提供容器 */
-			var $viewpoint = $list.parent()
+			var $viewpoint = this.$viewpoint = $list.parent()
 			$viewpoint.css({
 				width: width,
 				height: height,
@@ -42,63 +97,37 @@
 			})
 
         /* 通过当前图片的index来计算animate的位置*/
-			var current = 0
-			var hover = false
-			var $next = $('<button>next</button>').appendTo($arts)
-			var $prev = $('<button>prev</button>').appendTo($arts)
-			var go = function (index) {
-				console.log(index)
-				if (index < 0) {
-					index = $pics.length - 1
-				}
-				if (index > $pics.length - 1) {
-					index = 0
-				}
-				if (timer) {
-					window.clearInterval(timer)
-				}
-				var left = index * (-200)
-				$list.stop(true, true).animate({
-					left: left
-				}, function () {
-					current = index
-					if (!hover) {
-						autoplay()
-					}
-				})
-			}
-			$next.on('click', function () {
-				go(current + 1)
-			})
-			$prev.on('click', function () {
-				go(current - 1)
-			})
-
-        /*通过计时器和mouseenter事件，增加自动播放和自动悬停功能*/
-			var timer
-			var autoplay = function () {
-				timer = setInterval(function () {
-					go(current + 1)
-				}, 3000)
-			}
-			if (options.auto) {
-				autoplay()
-			}
-			$pics.on('mouseenter', function () {
-				window.clearInterval(timer)
-				hover = true
-			}).on('mouseleave', function () {
-				autoplay()
-				hover = false
-			})
-		})
-
+			var current = this.current = 0
+			var hover = this.hover = false
+			var $next = this.$next = $('<button>next</button>').appendTo($art)
+			var $prev = this.$prev = $('<button>prev</button>').appendTo($art)
+          this.$prev = $prev
+          this.$next = $next
+          console.log(1,this.$prev)
 	}
 
-	$('.arts').slides({
-		height: 150,
-		width: 200,
-		auto: true
-	})
+
+	var slides = new Slides($('.arts'), {width: 200, auto: true})
+
+
+  /*通过计时器和mouseenter事件，增加自动播放和自动悬停功能*/
+//	var timer
+//	var autoplay = function () {
+//		timer = setInterval(function () {
+//			go(current + 1)
+//		}, 3000)
+//	}
+//	if (options.auto) {
+//		autoplay()
+//	}
+//	$pics.on('mouseenter', function () {
+//		window.clearInterval(timer)
+//		hover = true
+//	}).on('mouseleave', function () {
+//		autoplay()
+//		hover = false
+////	})
+//
+//	}
 </script>
 </html>
